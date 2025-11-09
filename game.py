@@ -213,13 +213,33 @@ class Game2048:
 def main():
     """游戏主循环。"""
     
+    size = 4  # 默认值
+    while True:
+        # 提示用户输入，并说明范围和默认值
+        raw_input = input("输入棋盘大小 (范围 3-8, 默认 4): ") 
+        
+        # 1. 默认情况 (用户直接按回车)
+        if raw_input == "":
+            break  # 使用默认值 4
+            
+        # 2. 尝试转换和验证
+        try:
+            size_input = int(raw_input)
+            if 3 <= size_input <= 8:
+                size = size_input  # 更新 size
+                break # 输入有效，跳出循环
+            else:
+                print("输入无效。请输入 3 到 8 之间的整数。")
+        except ValueError:
+            print("输入格式错误，请输入一个整数。")
+
     if not USE_COLOR:
         print("提示: 模块 'colorama' 未找到。")
         print("游戏将以黑白模式运行。")
         print("可以尝试运行 'pip install colorama' 来安装彩色支持。")
         input("按回车键继续...")
         
-    game = Game2048()
+    game = Game2048(size = size)
 
     while True:
         # 1. 打印游戏板

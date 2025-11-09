@@ -3,6 +3,7 @@ import copy
 import os
 import sys
 import yaml
+import time
 
 # 尝试导入 colorama 以实现彩色输出
 try:
@@ -271,8 +272,11 @@ def main():
         print("提示: 模块 'colorama' 未找到。")
         print("游戏将以黑白模式运行。")
         print("可以尝试运行 'pip install colorama' 来安装彩色支持。")
-        input("按回车键继续...")
-        
+        #input("按回车键继续...")
+
+    print("\n--- 游戏将在 3 秒后开始 ---")
+    time.sleep(3)
+
     game = Game2048(size = size)
 
     while True:

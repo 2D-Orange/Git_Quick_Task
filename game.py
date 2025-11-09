@@ -2,6 +2,7 @@ import random
 import copy
 import os
 import sys
+import yaml
 
 # 尝试导入 colorama 以实现彩色输出
 try:
@@ -10,6 +11,9 @@ try:
     USE_COLOR = True
 except ImportError:
     USE_COLOR = False
+
+CONFIG_FILE_NAME = 'config.yaml'
+DEFAULT_SIZE = 4
 
 class Game2048:
     """
@@ -210,28 +214,58 @@ class Game2048:
         return [row[::-1] for row in board]
 
 
+def get_board_size_from_config():
+    """
+    从 config.yaml 读取、验证并返回棋盘大小。
+    如果文件/配置无效，则返回默认值 4。
+    """
+    try:
+        with open(CONFIG_FILE_NAME, 'r') as f:
+            config = yaml.safe_load(f)
+            
+            # 检查 config 是否为空或不是字典
+            if not isinstance(config, dict):
+                print(f"提示: '{CONFIG_FILE_NAME}' 为空或格式无效，使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+                return DEFAULT_SIZE
+
+            board_size_value = config.get('board_size')
+
+            # 检查 'board_size' 是否为空 (None) 或未设置 ('' 也视为空)
+            if board_size_value is None or board_size_value == "":
+                print(f"提示: 'board_size' 在 '{CONFIG_FILE_NAME}' 中为空或未设置。")
+                print(f"使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+                return DEFAULT_SIZE
+            
+            # 尝试转换为整数并验证范围
+            try:
+                size_input = int(board_size_value)
+                if 3 <= size_input <= 8:
+                    print(f"已从 '{CONFIG_FILE_NAME}' 加载棋盘大小: {size_input}x{size_input}。")
+                    return size_input
+                else:
+                    print(f"警告: '{CONFIG_FILE_NAME}' 中的 'board_size' ({size_input}) 超出 3-8 范围。")
+                    print(f"使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+                    return DEFAULT_SIZE
+            except (ValueError, TypeError):
+                print(f"警告: '{CONFIG_FILE_NAME}' 中的 'board_size' ('{board_size_value}') 不是有效整数。")
+                print(f"使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+                return DEFAULT_SIZE
+
+    except FileNotFoundError:
+        print(f"提示: 未找到 '{CONFIG_FILE_NAME}'。")
+        print(f"使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+        # 提示：可以自动创建默认文件，但这里保持简单
+        return DEFAULT_SIZE
+    except yaml.YAMLError as e:
+        print(f"警告: 解析 '{CONFIG_FILE_NAME}' 出错: {e}")
+        print(f"使用默认大小 {DEFAULT_SIZE}x{DEFAULT_SIZE}。")
+        return DEFAULT_SIZE
+
+
 def main():
     """游戏主循环。"""
     
-    size = 4  # 默认值
-    while True:
-        # 提示用户输入，并说明范围和默认值
-        raw_input = input("输入棋盘大小 (范围 3-8, 默认 4): ") 
-        
-        # 1. 默认情况 (用户直接按回车)
-        if raw_input == "":
-            break  # 使用默认值 4
-            
-        # 2. 尝试转换和验证
-        try:
-            size_input = int(raw_input)
-            if 3 <= size_input <= 8:
-                size = size_input  # 更新 size
-                break # 输入有效，跳出循环
-            else:
-                print("输入无效。请输入 3 到 8 之间的整数。")
-        except ValueError:
-            print("输入格式错误，请输入一个整数。")
+    size = get_board_size_from_config()
 
     if not USE_COLOR:
         print("提示: 模块 'colorama' 未找到。")

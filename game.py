@@ -4,6 +4,8 @@ import os
 import sys
 import yaml
 import time
+import csv
+from datetime import datetime
 
 # 尝试导入 colorama 以实现彩色输出
 try:
@@ -15,6 +17,7 @@ except ImportError:
 
 CONFIG_FILE_NAME = 'config.yaml'
 DEFAULT_SIZE = 4
+RECORD_FILE_NAME = 'record.csv'
 
 class Game2048:
     """
@@ -263,21 +266,54 @@ def get_board_size_from_config():
         return DEFAULT_SIZE
 
 
+def log_game_result(score, game_won):
+    """
+    将游戏结果记录到 record.csv 文件。
+    格式: [时间], [分数], [+]
+    """
+    try:
+        # 1. 获取当前时间并格式化
+        end_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        
+        # 2. 确定胜利状态
+        win_status = "+" if game_won else ""
+        
+        # 3. 准备数据行
+        row_data = [end_time, score, win_status]
+        
+        # 4. 写入文件
+        # 'a' (append) 模式会自动创建不存在的文件，并在文件末尾追加
+        # newline='' 是写入csv文件时的标准做法，防止空行
+        with open(RECORD_FILE_NAME, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(row_data)
+            
+    except IOError as e:
+        # 在主游戏循环之外打印，避免立即被清屏
+        print(f"\n警告: 无法写入记录到 '{RECORD_FILE_NAME}'. 错误: {e}")
+        print("游戏分数未被记录。")
+    except Exception as e:
+        print(f"\n警告: 记录游戏结果时发生未知错误: {e}")
+
+
 def main():
     """游戏主循环。"""
     
+    # --- 1. 从 config.yaml 获取棋盘大小 ---
     size = get_board_size_from_config()
-
+    
+    # --- 2. 检查 colorama ---
     if not USE_COLOR:
         print("提示: 模块 'colorama' 未找到。")
         print("游戏将以黑白模式运行。")
         print("可以尝试运行 'pip install colorama' 来安装彩色支持。")
-        #input("按回车键继续...")
-
+    
+    # --- 3. 统一暂停 ---
     print("\n--- 游戏将在 3 秒后开始 ---")
     time.sleep(3)
-
-    game = Game2048(size = size)
+    
+    # --- 4. 初始化游戏 ---
+    game = Game2048(size=size)
 
     while True:
         # 1. 打印游戏板
@@ -287,6 +323,11 @@ def main():
         if game.is_game_over():
             print("GAME OVER! 无法再移动。")
             print(f"你的最终分数是: {game.score}")
+            
+            # --- 新增：记录游戏结果 ---
+            log_game_result(game.score, game.game_won)
+            # -------------------------
+            
             break
 
         # 3. 获取用户输入
@@ -295,6 +336,11 @@ def main():
         # 4. 处理输入
         if move == 'q':
             print("感谢游玩，再见！")
+            
+            # --- 新增：记录游戏结果 (主动退出也记录) ---
+            log_game_result(game.score, game.game_won)
+            # -------------------------
+            
             break
         
         if move not in ['w', 'a', 's', 'd']:

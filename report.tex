@@ -1,0 +1,156 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{ctex} % 中文支持
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{tikz}
+
+% 中文字体
+\setCJKmainfont{Noto Serif CJK SC}
+
+% 代码高亮设置
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{green!50!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    tabsize=4,
+    captionpos=b
+}
+
+% 页眉页脚
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{Git + LaTeX Report Template}
+\fancyfoot[C]{\thepage}
+
+% 标题信息
+\title{Git + AI + LaTeX Report}
+\author{2D\_Orange}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Project Introduction}
+This is a project that develops a simple \textbf{2048 game} using \textbf{python}.
+In addition to the basic features, the game contains the following 3 new features.
+\begin{itemize}
+    \item Variable game board size
+    \item Game score record file
+    \item Configuration file
+\end{itemize}
+\textbf{Google Gemini} and \textbf{Deepseek} were mainly used to generate genius ideas on game features and detailed code implementation. The report was written in \textbf{Overleaf}.
+
+\section{AI Prompts Used}
+Below are 6 AI prompts used during development, though they were written in Chinese.
+\begin{verbatim}
+Prompt 1: "现在我需要利用ai工具开发一个2048小游戏，并生成其python程序代码等。
+    不过在这里，我只想了解如何使用合适的提示词来引导ai生成尽可能完整的源码文件"
+Prompt 2: "请用Python创建一个完整的2048游戏，要求：
+    1. 定义Game2048类，包含：4x4游戏板初始化、移动和合并逻辑、分数计算、
+    游戏状态检查
+    2. 实现以下方法：
+        __init__(): 初始化游戏
+        add_new_tile(): 在空白位置添加新数字
+        move(direction): 处理移动逻辑
+        is_game_over(): 检查游戏结束条件
+        print_board(): 显示当前游戏板
+    3. 主程序包含：游戏循环、用户输入处理(wasd控制方向)、胜利/失败提示
+    4. 额外功能：实时显示分数、游戏板彩色显示、移动有效性检查
+    请提供完整可运行的代码，包含所有必要的import语句"
+Prompt 3: "游戏写得很好！现在我要加一项功能，在游戏开始前提示"输入棋盘大小:"，
+    要求玩家往命令行中输入一个整数，并存储于size变量中，代表棋盘的大小。限制
+    输入整数3<=size<=8，超出范围或格式不规范则要求重新输入，不键入则使用缺省
+    设置size=4。输出需要修改部分的代码，并确保不影响整个程序原功能的正常工作"
+Prompt 4: "每次输入棋盘大小还是有点麻烦。现在需要创建一个和py文件同目录的
+    config.yaml文件，用以存储配置信息。在该yaml文件中填写board\_size的值，
+    并用注释提示“range between 3 and 8, default is 4”。在python代码中将
+    yaml文件定义的board\_size值传入，并实现限制范围和缺省设置的功能（输入为空
+    也进行缺省设置），最终传给size变量。输出需要修改部分的代码，并确保不影响整
+    个程序原功能的正常工作"
+Prompt 5: "发现一个问题。如果读取发生错误，程序会打印提示信息，但马上会被打印棋
+    盘的函数抹除，导致玩家看不到这些提示信息。修改一下程序在游戏开始前的行为，
+    在打印提示信息后等待3秒再开始游戏并打印棋盘。输出需要修改部分的代码，并确保
+    不影响整个程序原功能的正常工作"
+Prompt 6: "最后再添加一个功能。使用record.csv文件记录每次游玩结束时的信息，文
+    件第一列数据为游戏结束时的系统时间，格式为YYYY/MM/DD HH:MM:SS，第二列数据
+    为游戏结束时的分数，第三列数据为游戏成功与否，成功则写入字符“+”，失败则
+    不写入。如果没有record.csv文件，则先创建文件再写入信息；如果有record.csv
+    文件，则在文件最后另起一行记录新的信息。输出需要修改部分的代码，并确保不
+    影响整个程序原功能的正常工作"
+\end{verbatim}
+
+
+\section{Git Workflow}
+Firstly, a folder named \textbf{gqt\_ws} was initialized as the repository and used to contain code files.
+\begin{verbatim}
+cd gqt_ws
+git init
+\end{verbatim}
+
+Add and commit the files every time after updating them.
+\begin{verbatim}
+git add .
+git status
+git commit -m "message"
+\end{verbatim}
+
+After the first commit, create the branch \textbf{code}.
+\begin{verbatim}
+git branch code
+git checkout code
+\end{verbatim}
+
+After completion of game development, access the project repository on Github and fork it. Then push the branch \textbf{code} to the forked repository.
+\begin{verbatim}
+git remote add origin https://github.com/2D-Orange/Git_Quick_Task.git
+git push origin code
+\end{verbatim}
+
+Eventually, sync fork and finish the pull request on Github, so that the branch \textbf{code} is merged into \textbf{main}.\par
+
+The git logs are as follows:
+\begin{verbatim}
+$ git log --oneline
+5af0514 Add a feature to record game results
+654b58a Fix not displaying error info before game
+af6006d Add the config file
+5ed306b Add a feature to change board size
+f6e1556 Create the code file
+\end{verbatim}
+
+
+\section{Reflection}
+Through the project, I learned to:
+\begin{itemize}
+    \item Use AI to assist in development, especially in code implementation
+    \item Manage code with Git from scratch
+    \item Write something and compile with LaTeX from scratch
+\end{itemize}
+
+%\section{Appendix (Optional)}
+%Not available.
+
+\end{document}
